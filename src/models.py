@@ -25,12 +25,20 @@ class Student(Base):
     first_name: Mapped[str] = mapped_column(String(length=30))
     last_name: Mapped[str] = mapped_column(String(length=30))
     date_of_birth: Mapped[date] = mapped_column(Date)
-    status: Mapped[StudentStatus] = mapped_column(Enum(StudentStatus), default=StudentStatus.active)
-    faculty_id: Mapped[Optional[int]] = mapped_column(ForeignKey("faculties.id", ondelete="set null"), nullable=True)
+    study_status: Mapped[StudentStatus] = mapped_column(
+        Enum(StudentStatus), default=StudentStatus.active
+    )
+    faculty_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("faculties.id", ondelete="set null"), nullable=True
+    )
 
-    faculty: Mapped[Optional["Faculty"]] = relationship(backref="students", passive_deletes=True)
+    faculty: Mapped[Optional["Faculty"]] = relationship(
+        back_populates="students", passive_deletes=True
+    )
 
-    faculty_title: AssociationProxy[Optional[str]] = association_proxy("faculty", "name")
+    faculty_title: AssociationProxy[Optional[str]] = association_proxy(
+        "faculty", "name"
+    )
 
 
 class Faculty(Base):
@@ -38,3 +46,5 @@ class Faculty(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True)
+
+    students: Mapped[Optional["Student"]] = relationship(back_populates="faculty")

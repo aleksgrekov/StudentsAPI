@@ -17,9 +17,9 @@ async def lifespan(fast_api: FastAPI):
     print("Выключение")
 
 
-app = FastAPI(title="API Студентов", lifespan=lifespan)
+app = FastAPI(title="API Студентов", version="1.0.0", lifespan=lifespan)
 
 app.include_router(router=router)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("main:app")
