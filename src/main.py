@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
-from src.database import delete_tables, create_tables
+from src.database.service import delete_tables, create_tables
+from src.handlers.handlers import exception_handler
 from src.router import router
 
 
@@ -18,6 +19,8 @@ async def lifespan(fast_api: FastAPI):
 
 
 app = FastAPI(title="API Студентов", version="1.0.0", lifespan=lifespan)
+
+app.add_exception_handler(Exception, exception_handler)
 
 app.include_router(router=router)
 

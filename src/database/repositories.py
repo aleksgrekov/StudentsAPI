@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any, Sequence
 
 from sqlalchemy import delete, select, exists, func
 from sqlalchemy.exc import IntegrityError
@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.dml import ReturningDelete
 
-from src.custom_exceptions import IntegrityViolationException, RowNotFoundException
-from src.models import Student, Faculty
-from src.schemas import (
+from src.handlers.custom_exceptions import IntegrityViolationException, RowNotFoundException
+from src.database.models import Student, Faculty
+from src.schemas.base_schemas import SuccessResponse
+from src.schemas.student_schemas import (
     BodyStudentSchema,
-    SuccessResponse,
     UpdateStudentSchema,
     ResponseStudentSchema,
     ResponseStudentsWithPaginationSchema,
@@ -21,7 +21,7 @@ from src.schemas import (
 class StudentRepository:
     @classmethod
     async def add_new_student(
-        cls, session: AsyncSession, student_data: BodyStudentSchema
+            cls, session: AsyncSession, student_data: BodyStudentSchema
     ) -> ResponseNewStudentSchema:
         await cls._check_faculty_exists(session, student_data.faculty_id)
         new_student = Student(**student_data.model_dump())
@@ -32,23 +32,22 @@ class StudentRepository:
 
     @classmethod
     async def get_students(
-        cls, session: AsyncSession, filters: Dict
+            cls, session: AsyncSession, filters: Dict
     ) -> ResponseStudentsWithPaginationSchema:
         conditions = cls._build_conditions(filters)
 
         total_count = await cls._get_total_count(session, conditions)
 
-        students_query = (
-            select(Student).options(joinedload(Student.faculty)).where(*conditions)
-        )
-
         limit_value = filters.get("limit", 10)
         page_value = filters.get("page", 1)
         offset_value = (page_value - 1) * limit_value
 
-        students_request = await session.scalars(
-            students_query.limit(limit_value).offset(offset_value)
+        students_query = (
+            select(Student).options(joinedload(Student.faculty)).where(*conditions)
+            .limit(limit_value).offset(offset_value)
         )
+
+        students_request = await session.scalars(students_query)
         students = students_request.all()
 
         return ResponseStudentsWithPaginationSchema(
@@ -62,7 +61,7 @@ class StudentRepository:
 
     @classmethod
     async def update_student(
-        cls, session: AsyncSession, student_id: int, student_data: UpdateStudentSchema
+            cls, session: AsyncSession, student_id: int, student_data: UpdateStudentSchema
     ) -> ResponseStudentSchema:
         student = await session.get(Student, student_id)
         if not student:
@@ -78,7 +77,7 @@ class StudentRepository:
 
     @classmethod
     async def remove_student(
-        cls, session: AsyncSession, student_id: int
+            cls, session: AsyncSession, student_id: int
     ) -> SuccessResponse:
         delete_query = (
             delete(Student).returning(Student.id).where(Student.id == student_id)
@@ -88,9 +87,9 @@ class StudentRepository:
 
     @classmethod
     async def remove_students_with_params(
-        cls,
-        session: AsyncSession,
-        **filters,
+            cls,
+            session: AsyncSession,
+            **filters,
     ) -> SuccessResponse:
         conditions = cls._build_conditions(filters)
         delete_query = delete(Student).returning(Student.id).where(*conditions)
@@ -100,7 +99,7 @@ class StudentRepository:
 
     @classmethod
     async def _execute_delete(
-        cls, session: AsyncSession, query: ReturningDelete
+            cls, session: AsyncSession, query: ReturningDelete
     ) -> int:
         request = await session.execute(query)
         rows_deleted = len(request.fetchall())
@@ -112,20 +111,12 @@ class StudentRepository:
         return rows_deleted
 
     @classmethod
-    async def _check_faculty_exists(
-        cls, session: AsyncSession, faculty_id: Optional[int]
-    ) -> None:
-        if faculty_id:
-            exists_query = select(exists().where(Faculty.id == faculty_id))
-            response = await session.scalar(exists_query)
-
-            if not response:
-                raise RowNotFoundException(
-                    "Факультет не найден! Сначала создайте факультет!"
-                )
+    async def _check_faculty_exists(cls, session: AsyncSession, faculty_id: Optional[int]) -> None:
+        if faculty_id and not await session.scalar(select(exists().where(Faculty.id == faculty_id))):
+            raise RowNotFoundException("Факультет не найден! Сначала создайте факультет!")
 
     @classmethod
-    def _build_conditions(cls, filters: Dict) -> List:
+    def _build_conditions(cls, filters: Dict[str, Optional[Any]]) -> Sequence:
         return [
             (
                 getattr(Student, key) >= value

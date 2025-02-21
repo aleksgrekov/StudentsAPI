@@ -2,18 +2,11 @@ from typing import Optional
 
 from fastapi import APIRouter, status, Query, Path, Depends
 
-from src.database import DBSession
-from src.repositories import StudentRepository
-from src.schemas import (
-    BodyStudentSchema,
-    ResponseStudentSchema,
-    StudentStatusEnum,
-    SuccessResponse,
-    UpdateStudentSchema,
-    QueryStudentSchema,
-    ResponseStudentsWithPaginationSchema,
-    ResponseNewStudentSchema,
-)
+from src.database.service import DBSession
+from src.database.repositories import StudentRepository
+from src.schemas.base_schemas import SuccessResponse
+from src.schemas.student_schemas import ResponseStudentSchema, ResponseNewStudentSchema, BodyStudentSchema, \
+    ResponseStudentsWithPaginationSchema, QueryStudentSchema, UpdateStudentSchema, StudentStatusEnum
 
 router = APIRouter(prefix="/api/v1/students", tags=["Студенты"])
 
@@ -24,8 +17,8 @@ router = APIRouter(prefix="/api/v1/students", tags=["Студенты"])
     status_code=status.HTTP_201_CREATED,
 )
 async def add_student(
-    session: DBSession,
-    student_data: BodyStudentSchema,
+        session: DBSession,
+        student_data: BodyStudentSchema,
 ) -> ResponseNewStudentSchema:
     return await StudentRepository.add_new_student(session, student_data)
 
@@ -36,8 +29,8 @@ async def add_student(
     status_code=status.HTTP_200_OK,
 )
 async def get_students(
-    session: DBSession,
-    params: QueryStudentSchema = Depends(),
+        session: DBSession,
+        params: QueryStudentSchema = Depends(),
 ) -> ResponseStudentsWithPaginationSchema:
     query_params = params.model_dump()
     return await StudentRepository.get_students(session, query_params)
@@ -49,11 +42,11 @@ async def get_students(
     status_code=status.HTTP_200_OK,
 )
 async def update_student(
-    session: DBSession,
-    student_data: UpdateStudentSchema,
-    student_id: int = Path(
-        ...,
-    ),
+        session: DBSession,
+        student_data: UpdateStudentSchema,
+        student_id: int = Path(
+            ...,
+        ),
 ) -> ResponseStudentSchema:
     return await StudentRepository.update_student(session, student_id, student_data)
 
@@ -64,8 +57,8 @@ async def update_student(
     status_code=status.HTTP_200_OK,
 )
 async def delete_student(
-    session: DBSession,
-    student_id: int = Path(..., ge=1),
+        session: DBSession,
+        student_id: int = Path(..., ge=1),
 ) -> SuccessResponse:
     return await StudentRepository.remove_student(session, student_id)
 
@@ -76,9 +69,9 @@ async def delete_student(
     status_code=status.HTTP_200_OK,
 )
 async def delete_students_with_params(
-    session: DBSession,
-    study_status: Optional[StudentStatusEnum] = Query(None),
-    faculty_id: Optional[int] = Query(None, ge=1),
+        session: DBSession,
+        study_status: Optional[StudentStatusEnum] = Query(None),
+        faculty_id: Optional[int] = Query(None, ge=1),
 ) -> SuccessResponse:
     return await StudentRepository.remove_students_with_params(
         session, study_status=study_status, faculty_id=faculty_id

@@ -3,18 +3,12 @@ from datetime import date
 from typing import Optional, List
 from enum import Enum
 
-from src.models import Student
-
 
 class StudentStatusEnum(str, Enum):
     active = "active"
     academic_leave = "academic_leave"
     expelled = "expelled"
     graduated = "graduated"
-
-
-class SuccessResponse(BaseModel):
-    message: str
 
 
 class BodyStudentSchema(BaseModel):
