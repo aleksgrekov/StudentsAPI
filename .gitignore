@@ -1,4 +1,43 @@
+# Директории виртуального окружения
+.venv/
 .venv-dev/
-.idea/
 
+# Файлы среды и конфигурации
 .env
+
+# Логи и временные файлы
+logs/
+*.log
+*.log.*
+
+# Кэш и временные файлы Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Конфигурация IDE и редакторов
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Базы данных (если создаются локально)
+*.sqlite3
+db.sqlite3
+
+# Docker
+
+
+
+# Файлы тестирования и отчетов
+.coverage
+pytest_cache/
+
+
+# MyPy
+.mypy_cache/
+
+# Black и isort
+.black/
+.isort.cfg

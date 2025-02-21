@@ -31,22 +31,8 @@ dict_config = {
             "level": "ERROR",
             "formatter": "fileFormatter",
             "filename": str(log_file_path),
-            "maxBytes": 10**6,
+            "maxBytes": 10 ** 6,
             "backupCount": 5,
-        },
-    },
-    "loggers": {
-        "root": {
-            "level": "DEBUG",
-            "handlers": ["stream", "file"],
-        },
-        "error_logger": {
-            "level": "ERROR",
-            "handlers": ["file"],
-        },
-        "critical_logger": {
-            "level": "CRITICAL",
-            "handlers": ["file"],
         },
     },
     "root": {

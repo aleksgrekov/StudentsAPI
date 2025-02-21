@@ -7,7 +7,6 @@ from src.database.repositories import StudentRepository
 from src.schemas.base_schemas import SuccessResponse
 from src.schemas.student_schemas import (
     ResponseStudentSchema,
-    ResponseNewStudentSchema,
     BodyStudentSchema,
     ResponseStudentsWithPaginationSchema,
     QueryStudentSchema,
@@ -20,23 +19,23 @@ router = APIRouter(prefix="/api/v1/students", tags=["Студенты"])
 
 @router.post(
     "/",
-    response_model=ResponseNewStudentSchema,
+    response_model=ResponseStudentSchema,
     status_code=status.HTTP_201_CREATED,
     summary="Добавить нового студента",
     description="Добавляет нового студента в базу данных. Возвращает данные созданного студента.",
     responses={
         status.HTTP_201_CREATED: {
             "description": "Студент успешно добавлен",
-            "model": ResponseNewStudentSchema,
+            "model": ResponseStudentSchema,
         },
         status.HTTP_404_NOT_FOUND: {"description": "Факультет не найден! Сначала создайте факультет!"},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
     },
 )
 async def add_student(
-    session: DBSession,
-    student_data: BodyStudentSchema,
-) -> ResponseNewStudentSchema:
+        session: DBSession,
+        student_data: BodyStudentSchema,
+) -> ResponseStudentSchema:
     """Добавление нового студента"""
     return await StudentRepository.add_new_student(session, student_data)
 
@@ -56,8 +55,8 @@ async def add_student(
     },
 )
 async def get_students(
-    session: DBSession,
-    params: QueryStudentSchema = Depends(),
+        session: DBSession,
+        params: QueryStudentSchema = Depends(),
 ) -> ResponseStudentsWithPaginationSchema:
     """Получение списка студентов"""
     query_params = params.model_dump()
@@ -80,9 +79,9 @@ async def get_students(
     },
 )
 async def update_student(
-    session: DBSession,
-    student_data: UpdateStudentSchema,
-    student_id: int = Path(..., title="Student ID", description="ID студента", ge=1),
+        session: DBSession,
+        student_data: UpdateStudentSchema,
+        student_id: int = Path(..., title="Student ID", description="ID студента", ge=1),
 ) -> ResponseStudentSchema:
     """Обновление информации о студенте"""
     return await StudentRepository.update_student(session, student_id, student_data)
@@ -104,8 +103,8 @@ async def update_student(
     },
 )
 async def delete_student(
-    session: DBSession,
-    student_id: int = Path(..., ge=1),
+        session: DBSession,
+        student_id: int = Path(..., ge=1),
 ) -> SuccessResponse:
     """Удаление студента"""
     return await StudentRepository.remove_student(session, student_id)
@@ -127,9 +126,9 @@ async def delete_student(
     },
 )
 async def delete_students_with_params(
-    session: DBSession,
-    study_status: Optional[StudentStatusEnum] = Query(None),
-    faculty_id: Optional[int] = Query(None, ge=1),
+        session: DBSession,
+        study_status: Optional[StudentStatusEnum] = Query(None),
+        faculty_id: Optional[int] = Query(None, ge=1),
 ) -> SuccessResponse:
     """Удаление студентов с параметрами"""
     return await StudentRepository.remove_students_with_params(

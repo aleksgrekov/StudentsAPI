@@ -108,7 +108,7 @@ class QueryStudentSchema(UpdateStudentSchema):
     )
 
 
-class ResponseNewStudentSchema(BodyStudentSchema):
+class ResponseStudentSchema(BodyStudentSchema):
     """
     Схема для ответа с информацией о новом студенте.
     """
@@ -118,7 +118,7 @@ class ResponseNewStudentSchema(BodyStudentSchema):
     )
 
 
-class ResponseStudentSchema(ResponseNewStudentSchema):
+class GetStudentSchema(ResponseStudentSchema):
     """
     Схема для ответа с информацией о студенте, включая факультет.
     """

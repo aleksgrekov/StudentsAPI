@@ -17,7 +17,7 @@ from src.schemas.student_schemas import (
     UpdateStudentSchema,
     ResponseStudentSchema,
     ResponseStudentsWithPaginationSchema,
-    ResponseNewStudentSchema,
+    GetStudentSchema,
 )
 
 
@@ -29,7 +29,7 @@ class StudentRepository:
     @classmethod
     async def add_new_student(
         cls, session: AsyncSession, student_data: BodyStudentSchema
-    ) -> ResponseNewStudentSchema:
+    ) -> ResponseStudentSchema:
         """
         Добавляет нового студента в базу данных.
 
@@ -42,7 +42,7 @@ class StudentRepository:
 
         session.add(new_student)
         await cls._secure_commit(session)
-        return ResponseNewStudentSchema.model_validate(new_student)
+        return ResponseStudentSchema.model_validate(new_student)
 
     @classmethod
     async def get_students(
@@ -79,7 +79,7 @@ class StudentRepository:
             page=page_value,
             limit=limit_value,
             students=[
-                ResponseStudentSchema.model_validate(student) for student in students
+                GetStudentSchema.model_validate(student) for student in students
             ],
         )
 
