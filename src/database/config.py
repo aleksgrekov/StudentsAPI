@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,8 +13,9 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_NAME: str
 
+    @computed_field
     @property
-    def get_db_url(self) -> str:
+    def db_url(self) -> str:
         return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}".format(
             user=self.DB_USER,
             password=self.DB_PASSWORD,
@@ -23,7 +25,7 @@ class Settings(BaseSettings):
         )
 
     # @property
-    # def get_db_url_for_alembic(self) -> str:
+    # def db_url_for_alembic(self) -> str:
     #
     #     return "postgresql://{user}:{password}@{host}:{port}/{name}".format(
     #         user=self.DB_USER,

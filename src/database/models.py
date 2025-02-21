@@ -9,11 +9,13 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Base(DeclarativeBase):
     """Базовый класс для всех моделей SQLAlchemy."""
+
     pass
 
 
 class StudentStatus(enum.Enum):
     """Перечисление возможных статусов студента."""
+
     active = "active"  # Активный студент
     academic_leave = "academic_leave"  # Академический отпуск
     expelled = "expelled"  # Отчислен
@@ -25,6 +27,7 @@ class StudentStatus(enum.Enum):
 
 class Student(Base):
     """Модель студента."""
+
     __tablename__ = "students"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -52,6 +55,7 @@ class Student(Base):
 
 class Faculty(Base):
     """Модель факультета."""
+
     __tablename__ = "faculties"
 
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -1,11 +1,12 @@
 import sys
 from pathlib import Path
 
+# Путь для хранения логов
 log_folder_path = Path(__file__).parent.parent / "logs"
 log_folder_path.mkdir(exist_ok=True)
 log_file_path = log_folder_path / "logfile.log"
 
-
+# Конфигурация логгера
 dict_config = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -26,11 +27,30 @@ dict_config = {
             "stream": sys.stdout,
         },
         "file": {
-            "class": "logging.FileHandler",
-            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "ERROR",
             "formatter": "fileFormatter",
             "filename": str(log_file_path),
+            "maxBytes": 10**6,
+            "backupCount": 5,
         },
     },
-    "root": {"level": "DEBUG", "handlers": ["stream", "file"]},
+    "loggers": {
+        "root": {
+            "level": "DEBUG",
+            "handlers": ["stream", "file"],
+        },
+        "error_logger": {
+            "level": "ERROR",
+            "handlers": ["file"],
+        },
+        "critical_logger": {
+            "level": "CRITICAL",
+            "handlers": ["file"],
+        },
+    },
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["stream", "file"],
+    },
 }
