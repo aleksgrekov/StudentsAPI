@@ -3,21 +3,19 @@ from pathlib import Path
 
 import pytest
 from faker import Faker
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.database.config import settings
 from src.database.models import Base, Faculty
-from src.database.repositories import StudentRepository
+from src.database.repository import StudentRepository
 from src.database.service import get_session
 from src.main import app
 from src.schemas.student_schemas import BodyStudentSchema, StudentStatusEnum
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///test.db"
 engine_test = create_async_engine(TEST_DATABASE_URL, echo=False)
-async_session = async_sessionmaker(
-    bind=engine_test, expire_on_commit=False
-)
+async_session = async_sessionmaker(bind=engine_test, expire_on_commit=False)
 
 fake = Faker()
 
@@ -26,6 +24,7 @@ async def override_db_session():
     """Фикстура для переопределения зависимости получения сессии БД."""
     async with async_session() as session:
         yield session
+
 
 app.dependency_overrides[get_session] = override_db_session
 
@@ -64,7 +63,9 @@ async def db_session():
 @pytest.fixture
 async def client():
     """Фикстура для создания тестового клиента FastAPI."""
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
 

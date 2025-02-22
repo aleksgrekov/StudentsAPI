@@ -1,17 +1,18 @@
 from typing import Optional
 
-from fastapi import APIRouter, status, Query, Path, Depends
+from fastapi import APIRouter, Depends, Path, Query, status
 
+from src.database.repository import StudentRepository
 from src.database.service import DBSession
-from src.database.repositories import StudentRepository
 from src.schemas.base_schemas import SuccessResponse
 from src.schemas.student_schemas import (
-    ResponseStudentSchema,
     BodyStudentSchema,
-    ResponseStudentsWithPaginationSchema,
+    DeleteQueryStudentSchema,
     QueryStudentSchema,
-    UpdateStudentSchema,
+    ResponseStudentSchema,
+    ResponseStudentsWithPaginationSchema,
     StudentStatusEnum,
+    UpdateStudentSchema,
 )
 
 router = APIRouter(prefix="/api/v1/students", tags=["Студенты"])
@@ -28,13 +29,17 @@ router = APIRouter(prefix="/api/v1/students", tags=["Студенты"])
             "description": "Студент успешно добавлен",
             "model": ResponseStudentSchema,
         },
-        status.HTTP_404_NOT_FOUND: {"description": "Факультет не найден! Сначала создайте факультет!"},
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Факультет не найден! Сначала создайте факультет!"
+        },
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Ошибка валидации данных"
+        },
     },
 )
 async def add_student(
-        session: DBSession,
-        student_data: BodyStudentSchema,
+    session: DBSession,
+    student_data: BodyStudentSchema,
 ) -> ResponseStudentSchema:
     """Добавление нового студента"""
     return await StudentRepository.add_new_student(session, student_data)
@@ -51,12 +56,14 @@ async def add_student(
             "description": "Список студентов успешно получен",
             "model": ResponseStudentsWithPaginationSchema,
         },
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Ошибка валидации данных"
+        },
     },
 )
 async def get_students(
-        session: DBSession,
-        params: QueryStudentSchema = Depends(),
+    session: DBSession,
+    params: QueryStudentSchema = Depends(),
 ) -> ResponseStudentsWithPaginationSchema:
     """Получение списка студентов"""
     query_params = params.model_dump()
@@ -75,13 +82,15 @@ async def get_students(
             "model": ResponseStudentSchema,
         },
         status.HTTP_404_NOT_FOUND: {"description": "Запрашиваемая запись не найдена!"},
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Ошибка валидации данных"
+        },
     },
 )
 async def update_student(
-        session: DBSession,
-        student_data: UpdateStudentSchema,
-        student_id: int = Path(..., title="Student ID", description="ID студента", ge=1),
+    session: DBSession,
+    student_data: UpdateStudentSchema,
+    student_id: int = Path(..., title="Student ID", description="ID студента", ge=1),
 ) -> ResponseStudentSchema:
     """Обновление информации о студенте"""
     return await StudentRepository.update_student(session, student_id, student_data)
@@ -99,12 +108,14 @@ async def update_student(
             "model": SuccessResponse,
         },
         status.HTTP_404_NOT_FOUND: {"description": "Запрашиваемая запись не найдена!"},
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Ошибка валидации данных"
+        },
     },
 )
 async def delete_student(
-        session: DBSession,
-        student_id: int = Path(..., ge=1),
+    session: DBSession,
+    student_id: int = Path(..., ge=1),
 ) -> SuccessResponse:
     """Удаление студента"""
     return await StudentRepository.remove_student(session, student_id)
@@ -122,15 +133,15 @@ async def delete_student(
             "model": SuccessResponse,
         },
         status.HTTP_404_NOT_FOUND: {"description": "Запрашиваемая запись не найдена!"},
-        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": "Ошибка валидации данных"
+        },
     },
 )
 async def delete_students_with_params(
-        session: DBSession,
-        study_status: Optional[StudentStatusEnum] = Query(None),
-        faculty_id: Optional[int] = Query(None, ge=1),
+    session: DBSession,
+    params: DeleteQueryStudentSchema = Depends(),
 ) -> SuccessResponse:
     """Удаление студентов с параметрами"""
-    return await StudentRepository.remove_students_with_params(
-        session, study_status=study_status, faculty_id=faculty_id
-    )
+    query_params = params.model_dump()
+    return await StudentRepository.remove_students_with_params(session, query_params)

@@ -31,7 +31,7 @@ dict_config = {
             "level": "ERROR",
             "formatter": "fileFormatter",
             "filename": str(log_file_path),
-            "maxBytes": 10 ** 6,
+            "maxBytes": 10**6,
             "backupCount": 5,
         },
     },

@@ -1,6 +1,7 @@
 # Директории виртуального окружения
 .venv/
 .venv-dev/
+.venv-ci/
 
 # Файлы среды и конфигурации
 .env
@@ -23,12 +24,7 @@ __pycache__/
 *.swo
 
 # Базы данных (если создаются локально)
-*.sqlite3
-db.sqlite3
-
-# Docker
-
-
+db/
 
 # Файлы тестирования и отчетов
 .coverage
@@ -41,3 +37,7 @@ pytest_cache/
 # Black и isort
 .black/
 .isort.cfg
+
+
+# Виртуальное окружение для разработки
+requirements-dev.txt

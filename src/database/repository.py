@@ -1,23 +1,23 @@
-from typing import Optional, Dict, Any, Sequence
+from typing import Any, Dict, Optional, Sequence
 
-from sqlalchemy import delete, select, exists, func
+from sqlalchemy import delete, exists, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.dml import ReturningDelete
 
+from src.database.models import Faculty, Student
 from src.handlers.custom_exceptions import (
     IntegrityViolationException,
     RowNotFoundException,
 )
-from src.database.models import Student, Faculty
 from src.schemas.base_schemas import SuccessResponse
 from src.schemas.student_schemas import (
     BodyStudentSchema,
-    UpdateStudentSchema,
+    GetStudentSchema,
     ResponseStudentSchema,
     ResponseStudentsWithPaginationSchema,
-    GetStudentSchema,
+    UpdateStudentSchema,
 )
 
 
@@ -59,8 +59,8 @@ class StudentRepository:
 
         total_count = await cls._get_total_count(session, conditions)
 
-        limit_value = filters.get("limit", 10)
-        page_value = filters.get("page", 1)
+        limit_value = filters.get("limit") or 10
+        page_value = filters.get("page") or 1
         offset_value = (page_value - 1) * limit_value
 
         students_query = (
@@ -78,9 +78,7 @@ class StudentRepository:
             total=total_count,
             page=page_value,
             limit=limit_value,
-            students=[
-                GetStudentSchema.model_validate(student) for student in students
-            ],
+            students=[GetStudentSchema.model_validate(student) for student in students],
         )
 
     @classmethod
@@ -126,7 +124,7 @@ class StudentRepository:
 
     @classmethod
     async def remove_students_with_params(
-        cls, session: AsyncSession, **filters
+        cls, session: AsyncSession, filters: Dict[str, Optional[Any]]
     ) -> SuccessResponse:
         """
         Удаляет студентов по переданным параметрам.
@@ -206,7 +204,7 @@ class StudentRepository:
         :return: Количество студентов.
         """
         count_query = select(func.count()).select_from(Student).where(*conditions)
-        return (await session.execute(count_query)).scalar()
+        return (await session.execute(count_query)).scalar() or 0
 
     @classmethod
     async def _secure_commit(cls, session: AsyncSession) -> None:

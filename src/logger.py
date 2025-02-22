@@ -1,5 +1,6 @@
 import logging
 from logging.config import dictConfig
+
 from src.log_config import dict_config
 
 # Инициализация конфигурации логгера

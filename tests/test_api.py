@@ -64,7 +64,9 @@ async def test_update_student(client, create_student):
     Проверяет, что имя студента успешно изменяется.
     """
     update_data = {"first_name": "Петр"}
-    response = await client.patch(f"/api/v1/students/{create_student.id}", json=update_data)
+    response = await client.patch(
+        f"/api/v1/students/{create_student.id}", json=update_data
+    )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["first_name"] == "Петр"
@@ -93,12 +95,16 @@ async def test_delete_nonexistent_student(client):
 
 
 @pytest.mark.asyncio
-async def test_delete_students_with_params(client, db_session, create_student, create_expelled_student):
+async def test_delete_students_with_params(
+    client, db_session, create_student, create_expelled_student
+):
     """
     Тест на удаление студентов по параметрам (например, отчисленные студенты).
     Проверяет, что API корректно удаляет указанную группу студентов.
     """
-    response = await client.delete("/api/v1/students/", params={"study_status": "expelled"})
+    response = await client.delete(
+        "/api/v1/students/", params={"study_status": "expelled"}
+    )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["message"] == "Удалено 1 студентов!"

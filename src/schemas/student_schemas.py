@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field, ConfigDict
 from datetime import date
-from typing import Optional, List
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StudentStatusEnum(str, Enum):
@@ -106,6 +107,24 @@ class QueryStudentSchema(UpdateStudentSchema):
         title="Лимит",
         description="Количество студентов на одной странице. Значение должно быть больше или равно 1.",
     )
+
+
+class DeleteQueryStudentSchema(BaseModel):
+    """
+    Схема для фильтрации студентов при удалении.
+    """
+
+    study_status: Optional[StudentStatusEnum] = Field(
+        None, title="Статус обучения", description="Текущий статус обучения студента."
+    )
+    faculty_id: Optional[int] = Field(
+        None,
+        ge=1,
+        title="ID факультета",
+        description="ID факультета, к которому принадлежит студент. Значение должно быть больше или равно 1.",
+    )
+
+    model_config = ConfigDict(extra="forbid")
 
 
 class ResponseStudentSchema(BodyStudentSchema):

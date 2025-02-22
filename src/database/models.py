@@ -1,8 +1,8 @@
 import enum
 from datetime import date
-from typing import Optional, List, Annotated
+from typing import Annotated, List, Optional
 
-from sqlalchemy import String, Date, Enum, ForeignKey
+from sqlalchemy import Date, Enum, ForeignKey, String
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 

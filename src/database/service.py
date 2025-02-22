@@ -1,13 +1,13 @@
-from typing import AsyncGenerator, Annotated
+from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.database.config import settings
 from src.database.models import Base
 
 # Создаем движок
-DB_URL = settings.db_url
+DB_URL = settings.db_url(driver="asyncpg")
 engine = create_async_engine(DB_URL)
 
 # Фабрика сессий
@@ -22,15 +22,3 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 # Используется для внедрения зависимостей в FastAPI
 DBSession = Annotated[AsyncSession, Depends(get_session)]
-
-
-async def create_tables():
-    """Создание всех таблиц в базе данных."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
-async def delete_tables():
-    """Удаление всех таблиц из базы данных."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
