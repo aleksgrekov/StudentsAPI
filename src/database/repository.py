@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Sequence
 
-from sqlalchemy import delete, exists, func, select
+from sqlalchemy import asc, delete, exists, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -67,6 +67,7 @@ class StudentRepository:
             select(Student)
             .options(joinedload(Student.faculty))
             .where(*conditions)
+            .order_by(asc(Student.id))
             .limit(limit_value)
             .offset(offset_value)
         )
